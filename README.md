@@ -15,4 +15,13 @@ The ideas are taken from
 When a push notification is triggered in Gluu Server, the message is sent to Amazon Simple Notification Service (SNS) before it is routed to the corresponding FCM or APNS.
 
 <img src="img/super_gluu_sns.png" alt="Default Gluu Push Notification via Amazon SNS" />
-  
+
+There are options to send to Google and Apple directly. However, GCM (Google Cloud Messaging) and p12 file are no longer supported.
+
+<img src="img/super_gluu_old_conf.png" alt="Gluu Push Notification configuration (old)" />
+
+Therefore, AZPass attempts to provide up-to-date Helper classes to send push notification directly to FCM and APNs. 
+
+<img src="img/super_gluu_fcm.png" alt="Gluu Push Notification - FCM" />
+
+<img src="img/super_gluu_apns.png" alt="Gluu Push Notification - APNs" />
