@@ -11,3 +11,8 @@ The ideas are taken from
 		<groupId>org.gluu</groupId>
 		<version>4.2.3.Final</version>
 ```
+
+When a push notification is triggered in Gluu Server, the message is sent to Amazon Simple Notification Service (SNS) before it is routed to the corresponding FCM or APNS.
+
+<img src="img/super_gluu_sns.png" alt="Default Gluu Push Notification via Amazon SNS" />
+  
