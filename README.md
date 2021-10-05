@@ -26,14 +26,14 @@ Therefore, AZPass attempts to provide up-to-date Helper classes to send push not
 
 <img src="img/super_gluu_apns.png" alt="Gluu Push Notification - APNs" />
 
-#Deploy 
+# Deploy 
 
 ``` 
   ...
 ```
 
 
-#Mobile App
+# Mobile App
 
 We work with another local company (IC.SG) to customize the look-and-feel of Super Gluu. We rebrand it as **AZPass**.
 
