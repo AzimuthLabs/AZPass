@@ -25,3 +25,16 @@ Therefore, AZPass attempts to provide up-to-date Helper classes to send push not
 <img src="img/super_gluu_fcm.png" alt="Gluu Push Notification - FCM" />
 
 <img src="img/super_gluu_apns.png" alt="Gluu Push Notification - APNs" />
+
+#Deploy 
+
+``` 
+  ...
+```
+
+
+#Mobile App
+
+We work with another local company (IC.SG) to customize the look-and-feel of Super Gluu. We rebrand it as **AZPass**.
+
+The codes for **AZPass** are in GitLab - https://gitlab.com/identiticoders/azpass
