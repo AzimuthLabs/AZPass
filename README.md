@@ -37,4 +37,11 @@ Therefore, AZPass attempts to provide up-to-date Helper classes to send push not
 
 We work with another local company (IC.SG) to customize the look-and-feel of Super Gluu. We rebrand it as **AZPass**.
 
-The codes for **AZPass** are in GitLab - https://gitlab.com/identiticoders/azpass
+The repos for **AZPass** are in:
+1. https://github.com/Identiticoders/android-super-gluu
+2. https://github.com/Identiticoders/ios-super-gluu
+
+Both are forks from: 
+1. https://github.com/GluuFederation/android-super-gluu
+2. https://github.com/GluuFederation/ios-super-gluu
+
