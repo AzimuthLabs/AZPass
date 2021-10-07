@@ -1,0 +1,19 @@
+{
+  "android":{
+    "fcm":{
+      "enabled":true,
+      "project_id":"azpass-ca7cea",
+      "adminsdk_file_path":"/etc/certs/azpass-ca7ce-firebase-adminsdk.json"
+    }
+  },
+  "ios":{
+    "apns":{
+      "enabled":true,
+      "team_id":"QSH6DW32Z8",
+      "key_id":"97KB2THZ38",
+      "apns_host":"PRODUCTION",
+      "apns_topic":"sg.azpass",
+      "p8_file_path":"/etc/certs/AuthKey_97KB2THZ38.p8"
+    }
+  }
+}

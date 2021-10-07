@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>azpass</artifactId>
+	<groupId>azlabs</groupId>
+	<name>AZPass</name>
+	<version>4.2.3.Final</version>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>8</source>
+					<target>8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<packaging>jar</packaging>
+
+	<repositories>
+		<repository>
+			<id>mavencentral</id>
+			<name>maven central</name>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>
+		<repository>
+			<id>gluu</id>
+			<name>Gluu repository</name>
+			<url>http://ox.gluu.org/maven</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<httpcore.version>4.3.3</httpcore.version>
+		<httpclient.version>4.3.6</httpclient.version>
+		<gluu.version>4.2.3.Final</gluu.version>
+		<resteasy.version>3.13.0.Final</resteasy.version>
+		<log4j.version>2.13.3</log4j.version>
+		<googleauth.version>0.15.0</googleauth.version>
+		<pushy.version>0.15.0</pushy.version>
+	</properties>
+
+	<dependencies>
+		<!-- Gluu -->
+		<dependency>
+			<groupId>org.gluu</groupId>
+			<artifactId>oxnotify-model</artifactId>
+			<version>${gluu.version}</version>
+		</dependency>
+
+		<!-- Net -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${httpclient.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>${httpcore.version}</version>
+		</dependency>
+
+		<!-- Resteasy -->
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-client</artifactId>
+			<version>${resteasy.version}</version>
+		</dependency>
+	   <dependency>
+	        <groupId>org.jboss.resteasy</groupId>
+	        <artifactId>resteasy-jackson2-provider</artifactId>
+		   <version>${resteasy.version}</version>
+	    </dependency>
+
+		<!-- AZPASS: Logging -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+		<!-- AZPASS: Google Auth Library -->
+		<dependency>
+			<groupId>com.google.auth</groupId>
+			<artifactId>google-auth-library-oauth2-http</artifactId>
+			<version>${googleauth.version}</version>
+		</dependency>
+		<!-- AZPASS: Pushy APN -->
+		<dependency>
+			<groupId>com.eatthepath</groupId>
+			<artifactId>pushy</artifactId>
+			<version>${pushy.version}</version>
+		</dependency>
+
+	</dependencies>
+</project>
