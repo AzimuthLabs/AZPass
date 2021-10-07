@@ -4,8 +4,8 @@
 # Author: Yuriy Movchan
 #
 
-from com.google.android.gcm.server import Sender, Message
-from com.notnoop.apns import APNS
+from sg.azlabs.azpass import FCMHelper
+from sg.azlabs.azpass import APNSHelper
 from java.util import Arrays
 from org.apache.http.params import CoreConnectionPNames
 from org.gluu.service.cdi.util import CdiUtil
@@ -147,6 +147,8 @@ class PersonAuthentication(PersonAuthenticationType):
     def destroy(self, configurationAttributes):
         print "Super-Gluu. Destroy"
 
+        self.pushAndroidService.shutdown()
+        self.pushAppleService.shutdown()
         self.pushAndroidService = None
         self.pushAppleService = None
 
@@ -587,8 +589,10 @@ class PersonAuthentication(PersonAuthenticationType):
             elif StringHelper.equalsIgnoreCase(notificationServiceMode, "gluu"):
                 return self.initGluuPushNotificationService(configurationAttributes)
 
+        # AZPass is triggered in NativePushNotificationService
         return self.initNativePushNotificationService(configurationAttributes)
 
+    # AZPass - customization here
     def initNativePushNotificationService(self, configurationAttributes):
         print "Super-Gluu. Initialize native notification services"
 
@@ -597,7 +601,7 @@ class PersonAuthentication(PersonAuthenticationType):
             return False
 
         try:
-            android_creds = creds["android"]["gcm"]
+            android_creds = creds["android"]["fcm"]
             ios_creds = creds["ios"]["apns"]
         except:
             print "Super-Gluu. Initialize native notification services. Invalid credentials file format"
@@ -606,29 +610,21 @@ class PersonAuthentication(PersonAuthenticationType):
         self.pushAndroidService = None
         self.pushAppleService = None
         if android_creds["enabled"]:
-            self.pushAndroidService = Sender(android_creds["api_key"])
-            print "Super-Gluu. Initialize native notification services. Created Android notification service"
+            fcm_project_id = android_creds["project_id"]
+            fcm_adminsdk_file_path = android_creds["adminsdk_file_path"]
+            self.pushAndroidService = FCMHelper
+            self.pushAndroidService.init()
+            print "Super-Gluu. Initialize native notification services. Android FCMHelper initialized"
 
         if ios_creds["enabled"]:
-            p12_file_path = ios_creds["p12_file_path"]
-            p12_password = ios_creds["p12_password"]
-
-            try:
-                encryptionService = CdiUtil.bean(EncryptionService)
-                p12_password = encryptionService.decrypt(p12_password)
-            except:
-                # Ignore exception. Password is not encrypted
-                print "Super-Gluu. Initialize native notification services. Assuming that 'p12_password' password in not encrypted"
-
-            apnsServiceBuilder =  APNS.newService().withCert(p12_file_path, p12_password)
-            if ios_creds["production"]:
-                self.pushAppleService = apnsServiceBuilder.withProductionDestination().build()
-            else:
-                self.pushAppleService = apnsServiceBuilder.withSandboxDestination().build()
-
-            self.pushAppleServiceProduction = ios_creds["production"]
-
-            print "Super-Gluu. Initialize native notification services. Created iOS notification service"
+            apns_team_id = ios_creds["team_id"]
+            apns_key_id = ios_creds["key_id"]
+            apns_host = ios_creds["apns_host"]
+            apns_topic = ios_creds["apns_topic"]
+            apns_p8_file_path = ios_creds["p8_file_path"]
+            self.pushAppleService = APNSHelper
+            self.pushAppleService.init()
+            print "Super-Gluu. Initialize native notification services. Apple APNSHelper initialized"
 
         enabled = self.pushAndroidService != None or self.pushAppleService != None
 
@@ -778,6 +774,7 @@ class PersonAuthentication(PersonAuthenticationType):
         except:
             print "Super-Gluu. Send push notification. Failed to send push notification: ", sys.exc_info()[1]
 
+    #AZPass - customization
     def sendPushNotificationImpl(self, client_redirect_uri, user, super_gluu_request):
         if not self.enabledPushNotifications:
             return
@@ -850,17 +847,23 @@ class PersonAuthentication(PersonAuthenticationType):
                                 if debug:
                                     print "Super-Gluu. Send iOS Gluu push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
                         else:
+                            #AZPass - iOS Handling
                             additional_fields = { "request" : super_gluu_request }
 
-                            msgBuilder = APNS.newPayload().alertBody(message).alertTitle(title).sound("default")
-                            msgBuilder.category('ACTIONABLE').badge(0)
-                            msgBuilder.forNewsstand()
-                            msgBuilder.customFields(additional_fields)
-                            push_message = msgBuilder.build()
-
+                             aps_push_request_dictionary = { "aps":
+                                                                { "badge": 0,
+                                                                  "alert" : {"body": message, "title" : title},
+                                                                  "category": "ACTIONABLE",
+                                                                  "content-available": "1",
+                                                                  "sound": 'default'
+                                                           },
+                                                           "request" : super_gluu_request
+                            }
+                            push_message = json.dumps(aps_push_request_dictionary, separators=(',',':'))
                             send_notification_result = self.pushAppleService.push(push_token, push_message)
                             if debug:
-                                print "Super-Gluu. Send iOS Native push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
+                                print "Super-Gluu. Send iOS Native (AZPass) push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
+                            #AZPass - iOS Handling - END
                         send_ios = send_ios + 1
 
                 if StringHelper.equalsIgnoreCase(platform, "android") and StringHelper.isNotEmpty(push_token):
@@ -870,7 +873,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     else:
                         send_notification = True
 
-                        title = "Super-Gluu"
+                        title = "AZPass"
                         if self.pushSnsMode or self.pushGluuMode:
                             pushSnsService = CdiUtil.bean(PushSnsService)
                             targetEndpointArn = self.getTargetEndpointArn(deviceRegistrationService, pushSnsService, PushPlatform.GCM, user, u2f_device)
@@ -897,12 +900,20 @@ class PersonAuthentication(PersonAuthenticationType):
                                 if debug:
                                     print "Super-Gluu. Send Android Gluu push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
                         else:
-                            msgBuilder = Message.Builder().addData("message", super_gluu_request).addData("title", title).collapseKey("single").contentAvailable(True)
-                            push_message = msgBuilder.build()
+                            #AZPass - Android Handling
+                            fcm_push_request_dictionary = { "message":
+                                                                { "token" : push_token,
+                                                                  "android" : { "data" :
+                                                                                { "message" : super_gluu_request,
+                                                                                  "title" : title }
+                                                                              }
+                                                                }
+                            }
+                            push_message = json.dumps(fcm_push_request_dictionary, separators=(',',':'))
 
-                            send_notification_result = self.pushAndroidService.send(push_message, push_token, 3)
-                            if debug:
-                                print "Super-Gluu. Send Android Native push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
+                            send_notification_result = self.pushAndroidService.send(push_message)
+                            print "Super-Gluu. Send Android Native (AZPass) push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
+                            #AZPass - Android Handling - END
                         send_android = send_android + 1
 
         print "Super-Gluu. Send push notification. send_android: '%s', send_ios: '%s'" % (send_android, send_ios)
