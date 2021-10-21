@@ -114,3 +114,28 @@ Both are forks from:
 1. https://github.com/GluuFederation/android-super-gluu
 2. https://github.com/GluuFederation/ios-super-gluu
 
+
+# Login Flow
+
+When Super Gluu (AZPass) is enabled on Gluu Server, this is how the login page will look like.
+
+<img src="img/azpass.flow.1.png" alt="Gluu Login Page" />
+
+
+After user name and password are keyed in, the user is prompted with the following message.
+
+<img src="img/azpass.flow.2.png" alt="Gluu Push Notification Page" />
+
+
+A push notification will arrive on the user's mobile phone.
+
+<img src="img/azpass.flow.3.png" alt="Gluu Push Notification on Mobile App" />
+
+
+User clicks on the Approve button.
+
+<img src="img/azpass.flow.4.png" alt="Gluu Push Notification Approval Page on Mobile App" />
+
+User is successfully authenticated.
+
+<img src="img/azpass.flow.5.png" alt="Gluu Push Notification Success Page on Mobile App" />
