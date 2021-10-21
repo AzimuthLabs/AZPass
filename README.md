@@ -139,3 +139,5 @@ User clicks on the Approve button.
 User is successfully authenticated.
 
 <img src="img/azpass.flow.5.png" alt="Gluu Push Notification Success Page on Mobile App" />
+
+
