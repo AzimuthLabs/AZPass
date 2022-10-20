@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 public class FCMHelper {
 
-    private static Logger log = LoggerFactory.getLogger(FCMHelper.class);;
+    private static Logger log = LoggerFactory.getLogger(FCMHelper.class);
 
     private static boolean PN_ENABLED = false;
     private static String FCM_PROJECT_ID;
@@ -87,16 +87,13 @@ public class FCMHelper {
         final File file = new File(FCM_KEY_FILE);
         log.info("Using Google Credentials from file: " + file.getAbsolutePath());
         if (file.exists()) {
-            try {
-                FileInputStream s = new FileInputStream(file);
+            FileInputStream s = new FileInputStream(file);
 
-                GoogleCredentials googleCredential = GoogleCredentials.fromStream(s).createScoped(Arrays.asList(SCOPES));
-                googleCredential.refreshIfExpired();
+            GoogleCredentials googleCredential = GoogleCredentials.fromStream(s).createScoped(Arrays.asList(SCOPES));
+            googleCredential.refreshIfExpired();
 
-                return googleCredential.getAccessToken().getTokenValue();
-            } catch (IOException e) {
-                throw e;
-            }
+            return googleCredential.getAccessToken().getTokenValue();
+
         } else {
             throw new IOException("FCM Admin SDK Key File not found");
         }
