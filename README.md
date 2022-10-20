@@ -9,18 +9,10 @@ The ideas are taken from
 ```xml
 		<artifactId>oxnotify</artifactId>
 		<groupId>org.gluu</groupId>
-		<version>4.2.3.Final</version>
+		<version>4.4.1.Final</version>
 ```
 
-When a push notification is triggered in Gluu Server, the message is sent to Amazon Simple Notification Service (SNS) before it is routed to the corresponding FCM or APNS.
-
-<img src="img/super_gluu_sns.png" alt="Default Gluu Push Notification via Amazon SNS" />
-
-There are options to send to Google and Apple directly. However, GCM (Google Cloud Messaging) and p12 file are no longer supported.
-
-<img src="img/super_gluu_old_conf.png" alt="Gluu Push Notification configuration (old)" />
-
-Therefore, AZPass attempts to provide up-to-date Helper classes to send push notification directly to FCM and APNs. 
+AZPass attempts to provide up-to-date Helper classes to send push notification directly to FCM and APNs. 
 
 <img src="img/super_gluu_fcm.png" alt="Gluu Push Notification - FCM" />
 
@@ -53,7 +45,7 @@ The file *super_gluu_creds.json* should be saved in */etc/conf*.
 ```
 # Deploy 
 
-> **_NOTE:_** Upload the JAR files from *lib* directory in this repo. Some libraries are not up-to-date, but they are required in order to work with Gluu 4.2.3. **DO NOT** use latest libraries.  
+> **_NOTE:_** Upload the JAR files from *lib* directory in this repo. Some libraries are not up-to-date, but they are required in order to work with Gluu 4.4.1. **DO NOT** use latest libraries.  
 
 ``` 
   [root@sso ~]# gluu-serverd login
