@@ -94,6 +94,14 @@ oxauth_script.log:2021-09-17 19:17:55,218 INFO  [ForkJoinPool.commonPool-worker-
 
 ```
 
+The logs from APNSHelper and FCMHelper will appear in *oxauth.log*.
+
+```
+[root@gluu-ihh logs]# tail -1000f oxauth.log | grep APNS
+2022-11-03 13:48:18,973 INFO  [oxAuthScheduler_Worker-2] [sg.azlabs.azpass.APNSHelper] (APNSHelper.java:37) - Creating APN Client (PRODUCTION) ...
+2022-11-03 13:48:18,973 INFO  [oxAuthScheduler_Worker-2] [sg.azlabs.azpass.APNSHelper] (APNSHelper.java:40) - Using Apple Auth Key from file: /etc/certs/AuthKey_XXXXX.p8
+2022-11-03 13:48:19,354 INFO  [oxAuthScheduler_Worker-2] [sg.azlabs.azpass.APNSHelper] (APNSHelper.java:53) - Apple APNS Client init successful.
+```
 # Mobile App
 
 We work with another local company (IC.SG) to customize the look-and-feel of Super Gluu. We rebrand it as **AZPass**.
