@@ -17,9 +17,9 @@ public class FCMHelper {
     private static boolean PN_ENABLED = false;
     private static String FCM_PROJECT_ID;
     private static String FCM_KEY_FILE;
+    private static String FCM_SEND_ENDPOINT;
 
     private static final String FCM_BASE_URL      = "https://fcm.googleapis.com";
-    private static final String FCM_SEND_ENDPOINT = "/v1/projects/" + FCM_PROJECT_ID + "/messages:send";
 
     // authentication key file will always be of the following format
     // and will always be placed in WEB-INF/classes directory
@@ -36,6 +36,7 @@ public class FCMHelper {
 
         FCM_PROJECT_ID = projectId;
         FCM_KEY_FILE = adminSDKFilePath;
+        FCM_SEND_ENDPOINT = "/v1/projects/" + FCM_PROJECT_ID + "/messages:send";
 
         log.info("Creating FCM Client ...");
 
@@ -102,6 +103,7 @@ public class FCMHelper {
     // Create HttpURLConnection that can be used for both retrieving and publishing.
     private static HttpURLConnection getConnection() throws IOException {
 
+        log.info("Establishing a connection to " + FCM_BASE_URL + FCM_SEND_ENDPOINT);
         URL url = new URL(FCM_BASE_URL + FCM_SEND_ENDPOINT);
 
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
