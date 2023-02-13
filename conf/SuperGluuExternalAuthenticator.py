@@ -209,6 +209,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 u2f_device_id = session_device_status['device_id']
 
+                client_redirect_uri = "https://azpass.azlabs.sg"
                 validation_result = self.validateSessionDeviceStatus(client_redirect_uri, session_device_status)
                 if validation_result:
                     print "Super-Gluu. Authenticate for step 1. User successfully authenticated with u2f_device '%s'" % u2f_device_id
@@ -268,6 +269,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 if auth_method == 'authenticate':
                     user_inum = userService.getUserInum(authenticated_user)
+                    client_redirect_uri = "https://azpass.azlabs.sg"
                     u2f_devices_list = deviceRegistrationService.findUserDeviceRegistrations(user_inum, client_redirect_uri, "oxId")
                     if u2f_devices_list.size() == 0:
                         auth_method = 'enroll'
@@ -315,6 +317,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     print "Super-Gluu. Authenticate for step 2. Failed to determine user name"
                     return False
 
+                client_redirect_uri = "https://azpass.azlabs.sg"
                 validation_result = self.validateSessionDeviceStatus(client_redirect_uri, session_device_status, user_name)
                 if validation_result:
                     print "Super-Gluu. Authenticate for step 2. User '%s' successfully authenticated with u2f_device '%s'" % (user_name, u2f_device_id)
@@ -350,15 +353,16 @@ class PersonAuthentication(PersonAuthenticationType):
         if step == 1:
             print "Super-Gluu. Prepare for step 1"
             if self.oneStep:
-                session = CdiUtil.bean(SessionIdService).getSessionId()
-                if session == None:
+                session_id = CdiUtil.bean(SessionIdService).getSessionIdFromCookie()
+                if StringHelper.isEmpty(session_id):
                     print "Super-Gluu. Prepare for step 2. Failed to determine session_id"
                     return False
 
+                client_redirect_uri = "https://azpass.azlabs.sg"
                 issuer = CdiUtil.bean(ConfigurationFactory).getConfiguration().getIssuer()
                 super_gluu_request_dictionary = {'app': client_redirect_uri,
                                    'issuer': issuer,
-                                   'state': session.getId(),
+                                   'state': session_id,
                                    'licensed': self.valid_license,
                                    'created': DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now().withNano(0))}
 
@@ -389,8 +393,8 @@ class PersonAuthentication(PersonAuthenticationType):
                    print "Super-Gluu. Prepare for step 2. Request was generated already"
                    return True
 
-            session = CdiUtil.bean(SessionIdService).getSessionId()
-            if session == None:
+            session_id = CdiUtil.bean(SessionIdService).getSessionIdFromCookie()
+            if StringHelper.isEmpty(session_id):
                 print "Super-Gluu. Prepare for step 2. Failed to determine session_id"
                 return False
 
@@ -401,12 +405,13 @@ class PersonAuthentication(PersonAuthenticationType):
 
             print "Super-Gluu. Prepare for step 2. auth_method: '%s'" % auth_method
 
+            client_redirect_uri = "https://azpass.azlabs.sg"
             issuer = CdiUtil.bean(ConfigurationFactory).getAppConfiguration().getIssuer()
             super_gluu_request_dictionary = {'username': user.getUserId(),
                                'app': client_redirect_uri,
                                'issuer': issuer,
                                'method': auth_method,
-                               'state': session.getId(),
+                               'state': session_id,
                                'licensed': self.valid_license,
                                'created': DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now().withNano(0))}
 
@@ -418,6 +423,7 @@ class PersonAuthentication(PersonAuthenticationType):
             identity.setWorkingParameter("super_gluu_request", super_gluu_request)
             identity.setWorkingParameter("super_gluu_auth_method", auth_method)
 
+            client_redirect_uri = "https://azpass.azlabs.sg"
             if auth_method in ['authenticate']:
                 self.sendPushNotification(client_redirect_uri, user, super_gluu_request)
 
@@ -613,7 +619,7 @@ class PersonAuthentication(PersonAuthenticationType):
             fcm_project_id = android_creds["project_id"]
             fcm_adminsdk_file_path = android_creds["adminsdk_file_path"]
             self.pushAndroidService = FCMHelper
-            self.pushAndroidService.init()
+            self.pushAndroidService.init(fcm_project_id, fcm_adminsdk_file_path)
             print "Super-Gluu. Initialize native notification services. Android FCMHelper initialized"
 
         if ios_creds["enabled"]:
@@ -623,12 +629,13 @@ class PersonAuthentication(PersonAuthenticationType):
             apns_topic = ios_creds["apns_topic"]
             apns_p8_file_path = ios_creds["p8_file_path"]
             self.pushAppleService = APNSHelper
-            self.pushAppleService.init()
+            self.pushAppleService.init(apns_team_id, apns_key_id, apns_host, apns_topic, apns_p8_file_path)
             print "Super-Gluu. Initialize native notification services. Apple APNSHelper initialized"
 
         enabled = self.pushAndroidService != None or self.pushAppleService != None
 
         return enabled
+    # AZPass - customization ends here
 
     def initSnsPushNotificationService(self, configurationAttributes):
         print "Super-Gluu. Initialize SNS notification services"
@@ -790,6 +797,9 @@ class PersonAuthentication(PersonAuthenticationType):
 
         user_inum = userService.getUserInum(user_name)
 
+		# Hardcode client_redirect_uri
+        client_redirect_uri = "https://azpass.azlabs.sg"
+
         send_android = 0
         send_ios = 0
         u2f_devices_list = deviceRegistrationService.findUserDeviceRegistrations(user_inum, client_redirect_uri, "oxId", "oxDeviceData", "oxDeviceNotificationConf")
@@ -803,7 +813,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
                 platform = device_data.getPlatform()
                 push_token = device_data.getPushToken()
-                debug = False
+                debug = True
 
                 if StringHelper.equalsIgnoreCase(platform, "ios") and StringHelper.isNotEmpty(push_token):
                     # Sending notification to iOS user's device
@@ -850,7 +860,7 @@ class PersonAuthentication(PersonAuthenticationType):
                             #AZPass - iOS Handling
                             additional_fields = { "request" : super_gluu_request }
 
-                             aps_push_request_dictionary = { "aps":
+                            aps_push_request_dictionary = { "aps":
                                                                 { "badge": 0,
                                                                   "alert" : {"body": message, "title" : title},
                                                                   "category": "ACTIONABLE",
@@ -860,7 +870,7 @@ class PersonAuthentication(PersonAuthenticationType):
                                                            "request" : super_gluu_request
                             }
                             push_message = json.dumps(aps_push_request_dictionary, separators=(',',':'))
-                            send_notification_result = self.pushAppleService.push(push_token, push_message)
+                            send_notification_result = self.pushAppleService.send(push_token, push_message)
                             if debug:
                                 print "Super-Gluu. Send iOS Native (AZPass) push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
                             #AZPass - iOS Handling - END
@@ -912,11 +922,13 @@ class PersonAuthentication(PersonAuthenticationType):
                             push_message = json.dumps(fcm_push_request_dictionary, separators=(',',':'))
 
                             send_notification_result = self.pushAndroidService.send(push_message)
-                            print "Super-Gluu. Send Android Native (AZPass) push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
+                            if debug:
+                                print "Super-Gluu. Send Android Native (AZPass) push notification. token: '%s', message: '%s', send_notification_result: '%s'" % (push_token, push_message, send_notification_result)
                             #AZPass - Android Handling - END
                         send_android = send_android + 1
 
         print "Super-Gluu. Send push notification. send_android: '%s', send_ios: '%s'" % (send_android, send_ios)
+    #AZPass - customization ends
 
     def getTargetEndpointArn(self, deviceRegistrationService, pushSnsService, platform, user, u2fDevice):
         targetEndpointArn = None
