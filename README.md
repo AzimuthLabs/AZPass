@@ -9,18 +9,10 @@ The ideas are taken from
 ```xml
 		<artifactId>oxnotify</artifactId>
 		<groupId>org.gluu</groupId>
-		<version>4.2.3.Final</version>
+		<version>4.4.1.Final</version>
 ```
 
-When a push notification is triggered in Gluu Server, the message is sent to Amazon Simple Notification Service (SNS) before it is routed to the corresponding FCM or APNS.
-
-<img src="img/super_gluu_sns.png" alt="Default Gluu Push Notification via Amazon SNS" />
-
-There are options to send to Google and Apple directly. However, GCM (Google Cloud Messaging) and p12 file are no longer supported.
-
-<img src="img/super_gluu_old_conf.png" alt="Gluu Push Notification configuration (old)" />
-
-Therefore, AZPass attempts to provide up-to-date Helper classes to send push notification directly to FCM and APNs. 
+AZPass attempts to provide up-to-date Helper classes to send push notification directly to FCM and APNs. 
 
 <img src="img/super_gluu_fcm.png" alt="Gluu Push Notification - FCM" />
 
@@ -53,7 +45,7 @@ The file *super_gluu_creds.json* should be saved in */etc/conf*.
 ```
 # Deploy 
 
-> **_NOTE:_** Upload the JAR files from *lib* directory in this repo. Some libraries are not up-to-date, but they are required in order to work with Gluu 4.2.3. **DO NOT** use latest libraries.  
+> **_NOTE:_** Upload the JAR files from *lib* directory in this repo. Some libraries are not up-to-date, but they are required in order to work with Gluu 4.4.1. **DO NOT** use latest libraries.  
 
 ``` 
   [root@sso ~]# gluu-serverd login
@@ -102,6 +94,14 @@ oxauth_script.log:2021-09-17 19:17:55,218 INFO  [ForkJoinPool.commonPool-worker-
 
 ```
 
+The logs from APNSHelper and FCMHelper will appear in *oxauth.log*.
+
+```
+[root@gluu-ihh logs]# tail -1000f oxauth.log | grep APNS
+2022-11-03 13:48:18,973 INFO  [oxAuthScheduler_Worker-2] [sg.azlabs.azpass.APNSHelper] (APNSHelper.java:37) - Creating APN Client (PRODUCTION) ...
+2022-11-03 13:48:18,973 INFO  [oxAuthScheduler_Worker-2] [sg.azlabs.azpass.APNSHelper] (APNSHelper.java:40) - Using Apple Auth Key from file: /etc/certs/AuthKey_XXXXX.p8
+2022-11-03 13:48:19,354 INFO  [oxAuthScheduler_Worker-2] [sg.azlabs.azpass.APNSHelper] (APNSHelper.java:53) - Apple APNS Client init successful.
+```
 # Mobile App
 
 We work with another local company (IC.SG) to customize the look-and-feel of Super Gluu. We rebrand it as **AZPass**.

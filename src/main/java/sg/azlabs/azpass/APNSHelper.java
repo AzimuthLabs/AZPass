@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 public class APNSHelper {
 
-    private static Logger log = LoggerFactory.getLogger(APNSHelper.class);;
+    private static Logger log = LoggerFactory.getLogger(APNSHelper.class);
 
     private static final String PN_IOS_APNS_HOST_PROD = "PRODUCTION";
 

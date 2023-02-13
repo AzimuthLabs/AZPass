@@ -6,7 +6,7 @@
 	<artifactId>azpass</artifactId>
 	<groupId>azlabs</groupId>
 	<name>AZPass</name>
-	<version>4.2.3.Final</version>
+	<version>4.4.1.Final</version>
 	<build>
 		<plugins>
 			<plugin>
@@ -16,6 +16,7 @@
 				<configuration>
 					<source>8</source>
 					<target>8</target>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -31,18 +32,18 @@
 		<repository>
 			<id>gluu</id>
 			<name>Gluu repository</name>
-			<url>http://ox.gluu.org/maven</url>
+			<url>https://maven.gluu.org/maven</url>
 		</repository>
 	</repositories>
 
 	<properties>
-		<httpcore.version>4.3.3</httpcore.version>
-		<httpclient.version>4.3.6</httpclient.version>
-		<gluu.version>4.2.3.Final</gluu.version>
-		<resteasy.version>3.13.0.Final</resteasy.version>
-		<log4j.version>2.13.3</log4j.version>
-		<googleauth.version>0.15.0</googleauth.version>
-		<pushy.version>0.15.0</pushy.version>
+		<httpcore.version>4.4.14</httpcore.version>
+		<httpclient.version>4.5.13</httpclient.version>
+		<gluu.version>4.4.1.Final</gluu.version>
+		<resteasy.version>4.7.5.Final</resteasy.version>
+		<log4j.version>2.17.2</log4j.version>
+		<googleauth.version>1.6.0</googleauth.version>
+		<pushy.version>0.15.1</pushy.version>
 	</properties>
 
 	<dependencies>
