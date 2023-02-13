@@ -19,11 +19,7 @@ public class FCMHelper {
     private static String FCM_KEY_FILE;
     private static String FCM_SEND_ENDPOINT;
 
-    private static final String FCM_BASE_URL      = "https://fcm.googleapis.com";
-
-    // authentication key file will always be of the following format
-    // and will always be placed in WEB-INF/classes directory
-
+    private static final String   FCM_BASE_URL    = "https://fcm.googleapis.com";
     private static final String   MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
     private static final String[] SCOPES          = { MESSAGING_SCOPE };
 
