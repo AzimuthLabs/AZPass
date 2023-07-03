@@ -10,6 +10,15 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import com.google.api.client.http.HttpTransport;
+import com.google.auth.http.HttpTransportFactory;
+import com.google.api.client.http.apache.v2.ApacheHttpTransport;
+import org.apache.http.HttpHost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+
 public class FCMHelper {
 
     private static Logger log = LoggerFactory.getLogger(FCMHelper.class);
@@ -23,16 +32,23 @@ public class FCMHelper {
     private static final String   MESSAGING_SCOPE = "https://www.googleapis.com/auth/firebase.messaging";
     private static final String[] SCOPES          = { MESSAGING_SCOPE };
 
+    private static boolean ENABLE_PROXY;
+    private static String PROXY_HOST;
+    private static int PROXY_PORT;
+
     // private constructor
     private FCMHelper() {}
 
 
-    public static void init(String projectId, String adminSDKFilePath) {
+    public static void init(String projectId, String adminSDKFilePath, boolean isProxyEnable, String proxyHost, int proxyPort) {
         final String methodName = "init";
 
         FCM_PROJECT_ID = projectId;
         FCM_KEY_FILE = adminSDKFilePath;
         FCM_SEND_ENDPOINT = "/v1/projects/" + FCM_PROJECT_ID + "/messages:send";
+        ENABLE_PROXY = isProxyEnable;
+        PROXY_HOST = proxyHost;
+        PROXY_PORT = proxyPort;
 
         log.info("Creating FCM Client ...");
 
@@ -82,11 +98,39 @@ public class FCMHelper {
     private static String getAccessToken() throws IOException {
 
         final File file = new File(FCM_KEY_FILE);
+        GoogleCredentials googleCredential = null;
         log.info("Using Google Credentials from file: " + file.getAbsolutePath());
+
         if (file.exists()) {
             FileInputStream s = new FileInputStream(file);
 
-            GoogleCredentials googleCredential = GoogleCredentials.fromStream(s).createScoped(Arrays.asList(SCOPES));
+            if (ENABLE_PROXY) {
+                log.info("getAccessToken with Proxy builder");
+
+                HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
+                HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+                clientBuilder.setProxy(proxy);
+
+                CloseableHttpClient httpClient = clientBuilder.build();
+                ApacheHttpTransport mHttpTransport;
+
+                mHttpTransport = new ApacheHttpTransport(httpClient);
+                HttpTransportFactory transportFactory = new HttpTransportFactory() {
+                    @Override
+                    public HttpTransport create() {
+                        return mHttpTransport;
+                    }
+                };
+
+                googleCredential = GoogleCredentials.fromStream(s,transportFactory).createScoped(Arrays.asList(SCOPES));
+            }
+            
+            else {
+                log.info("getAccessToken");
+
+                googleCredential = GoogleCredentials.fromStream(s).createScoped(Arrays.asList(SCOPES));
+            }
+
             googleCredential.refreshIfExpired();
 
             return googleCredential.getAccessToken().getTokenValue();
@@ -102,7 +146,20 @@ public class FCMHelper {
         log.info("Establishing a connection to " + FCM_BASE_URL + FCM_SEND_ENDPOINT);
         URL url = new URL(FCM_BASE_URL + FCM_SEND_ENDPOINT);
 
-        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection httpURLConnection = null;
+
+        if(ENABLE_PROXY) {
+            log.debug("Building httpURLConnection with Proxy");
+
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
+            httpURLConnection = (HttpURLConnection) url.openConnection(proxy);
+
+        } else {
+            log.debug("Building httpURLConnection without Proxy");
+
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+        }
+
         httpURLConnection.setRequestProperty("Authorization", "Bearer " + getAccessToken());
         httpURLConnection.setRequestProperty("Content-Type",  "application/json; UTF-8");
 
