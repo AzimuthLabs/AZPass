@@ -609,17 +609,27 @@ class PersonAuthentication(PersonAuthenticationType):
         try:
             android_creds = creds["android"]["fcm"]
             ios_creds = creds["ios"]["apns"]
+            proxy_config = creds["proxy"]["config"]
+            is_proxy_enabled = False
+            proxy_host = ""
+            proxy_port = 0
         except:
             print "Super-Gluu. Initialize native notification services. Invalid credentials file format"
             return False
 
         self.pushAndroidService = None
         self.pushAppleService = None
+
+        if proxy_config["enabled"]:
+            is_proxy_enabled = True
+            proxy_port = proxy_config["proxy_port"]        
+            proxy_host = proxy_config["proxy_host"]
+
         if android_creds["enabled"]:
             fcm_project_id = android_creds["project_id"]
             fcm_adminsdk_file_path = android_creds["adminsdk_file_path"]
             self.pushAndroidService = FCMHelper
-            self.pushAndroidService.init(fcm_project_id, fcm_adminsdk_file_path)
+            self.pushAndroidService.init(fcm_project_id, fcm_adminsdk_file_path, is_proxy_enabled, proxy_host, proxy_port)
             print "Super-Gluu. Initialize native notification services. Android FCMHelper initialized"
 
         if ios_creds["enabled"]:
@@ -627,9 +637,10 @@ class PersonAuthentication(PersonAuthenticationType):
             apns_key_id = ios_creds["key_id"]
             apns_host = ios_creds["apns_host"]
             apns_topic = ios_creds["apns_topic"]
-            apns_p8_file_path = ios_creds["p8_file_path"]
+            apns_p12_file_path = ios_creds["p12_file_path"]
+            apns_p12_password = ios_creds["p12_file_password"]
             self.pushAppleService = APNSHelper
-            self.pushAppleService.init(apns_team_id, apns_key_id, apns_host, apns_topic, apns_p8_file_path)
+            self.pushAppleService.init(apns_team_id, apns_key_id, apns_host, apns_topic, apns_p12_file_path, apns_p12_password, is_proxy_enabled, proxy_host, proxy_port)
             print "Super-Gluu. Initialize native notification services. Apple APNSHelper initialized"
 
         enabled = self.pushAndroidService != None or self.pushAppleService != None
