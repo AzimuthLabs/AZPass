@@ -5,6 +5,8 @@ import com.eatthepath.pushy.apns.ApnsClientBuilder;
 import com.eatthepath.pushy.apns.PushNotificationResponse;
 import com.eatthepath.pushy.apns.auth.ApnsSigningKey;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
+import com.eatthepath.pushy.apns.proxy.HttpProxyHandlerFactory;
+import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
 import com.eatthepath.pushy.apns.util.concurrent.PushNotificationFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
 
@@ -30,7 +33,7 @@ public class APNSHelper {
     private APNSHelper() {}
 
 
-    public static void init(String teamId, String keyId, String apnsHost, String apnsTopic, String p8FilePath) {
+    public static void init(String teamId, String keyId, String apnsHost, String apnsTopic, String p8FilePath, String p12Password, boolean isProxyEnable, String proxyHost, int proxyPort) {
         APNS_HOST  = apnsHost;
         APNS_TOPIC = apnsTopic;
 
@@ -44,15 +47,43 @@ public class APNSHelper {
             if (file.exists()) {
                 InputStream keyis = new FileInputStream(file);
 
-                apnsClient = new ApnsClientBuilder()
-                        .setApnsServer(getAPNSHost())
-                        .setSigningKey(ApnsSigningKey.loadFromInputStream(keyis, teamId, keyId))
-                        .build();
+                if(isProxyEnable) {
+                    
+                    //p8 file apnsClient builder with proxy
+                    // apnsClient = new ApnsClientBuilder()
+                    //     .setApnsServer(getAPNSHost())
+                    //     .setSigningKey(ApnsSigningKey.loadFromInputStream(keyis, teamId, keyId))
+                    //     .setProxyHandlerFactory(new HttpProxyHandlerFactory(new InetSocketAddress(PROXY_HOST,PROXY_PORT)))
+                    //     .build();
 
-                PN_ENABLED = true;
-                log.info("Apple APNS Client init successful.");
+                    //p12 file apnsClient builder with proxy
+                    apnsClient = new ApnsClientBuilder()
+                                .setApnsServer(getAPNSHost())
+                                .setClientCredentials(file,p12Password)
+                                .setProxyHandlerFactory(new HttpProxyHandlerFactory(new InetSocketAddress(proxyHost,proxyPort)))
+                                .build();
 
-                keyis.close();
+                    PN_ENABLED = true;
+                    log.info("Apple APNS Client with proxy init successful.");
+
+                    keyis.close();
+
+                } else {
+
+                    //p8 file apnsClient builder
+                    // apnsClient = new ApnsClientBuilder()
+                    //         .setApnsServer(getAPNSHost())
+                    //         .setSigningKey(ApnsSigningKey.loadFromInputStream(keyis, teamId, keyId))
+                    //         .build();
+
+                    //p12 file apnsClient builder
+                    apnsClient = new ApnsClientBuilder()
+                            .setApnsServer(getAPNSHost())
+                            .setClientCredentials(file,p12Password)
+                            .build();
+                    log.info("Apple APNS Client init successful.");
+                }
+            
             }
 
         } catch (Exception e) {

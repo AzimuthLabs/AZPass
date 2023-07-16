@@ -13,7 +13,15 @@
       "key_id":"97KB2THZ38",
       "apns_host":"PRODUCTION",
       "apns_topic":"sg.azpass",
-      "p8_file_path":"/etc/certs/AuthKey_97KB2THZ38.p8"
+      "p12_file_path":"/etc/certs/AuthKey_97KB2THZ38.p12",
+      "p12_file_password":""
+    }
+  },
+  "proxy": {
+    "config": {
+      "enabled":false,
+      "proxy_host":"host.com",
+      "proxy_port":8222
     }
   }
 }
